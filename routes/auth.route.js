@@ -1,9 +1,10 @@
 const express = require("express");
 const userModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
-//  to register or sign up a user 
+//  to register or sign up a user
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, isAdmin } = req.body;
@@ -31,6 +32,38 @@ router.post("/register", async (req, res) => {
     res
       .status(201)
       .json({ message: "User Created Successfully!", data: userInfo });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: `Server side error: ${err?.message}` });
+  }
+});
+
+// to login or sign in a user
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    // does user exist
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: `Invalid Credentials!` });
+    }
+    const { password: hashPassword, _id, ...userInfo } = user?._doc;
+
+    // compare the credential
+    const isMatch = await bcrypt.compare(password, hashPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: `Invalid Credentials` });
+    }
+    // generate jwt token
+    const token = await jwt.sign({ email, _id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    // logged in done
+    res.status(200).json({
+      message: "Successfully Logged in ",
+      token,
+      data: { _id, ...userInfo },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: `Server side error: ${err?.message}` });
