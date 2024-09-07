@@ -7,6 +7,7 @@ const {
   addProductByAdmin,
   getAllProducts,
   updateProduct,
+  getProductById,
 } = require("../controllers/product.controller");
 
 const router = express.Router();
@@ -15,6 +16,9 @@ const router = express.Router();
 router.post("/", verifyTokenAndAdmin, addProductByAdmin);
 // to get all products 
 router.get("/", verifyToken, getAllProducts);
+
+// to get a product 
+router.get("/:id", verifyToken, getProductById )
 
 // update a product by admin 
 router.put("/:id", verifyTokenAndAdmin, updateProduct)

@@ -56,6 +56,23 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+// to get a product by id
+const getProductById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Retrieve product by id 
+    const product = await productModel.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product is not found." });
+    }
+    res.status(200).json({ message: "Success", data: product });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server side error." });
+  }
+};
+
+// to update a product details by admin
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
@@ -79,7 +96,7 @@ const updateProduct = async (req, res) => {
         .json({ message: "Price and stock must be positive numbers." });
     }
     // Check if product exist
-    const product = await productModel.findById( id );
+    const product = await productModel.findById(id);
     if (!product) {
       return res.status(404).json({ message: "Product is not found." });
     }
@@ -97,9 +114,9 @@ const updateProduct = async (req, res) => {
     );
 
     if (!updatedProduct) {
-     return res.status(500).json({ message: "Failed to update product." });
+      return res.status(500).json({ message: "Failed to update product." });
     }
-    // send the updated product as response 
+    // send the updated product as response
     res
       .status(200)
       .json({ message: "The product has updated.", data: updatedProduct });
@@ -109,4 +126,4 @@ const updateProduct = async (req, res) => {
   }
 };
 
-module.exports = { addProductByAdmin, getAllProducts, updateProduct };
+module.exports = { addProductByAdmin, getAllProducts, updateProduct, getProductById };
