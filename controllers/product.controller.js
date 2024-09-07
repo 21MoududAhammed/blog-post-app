@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const productModel = require("../models/product.model");
-// To add a product by admin 
+// To add a product by admin
 const addProductByAdmin = async (req, res) => {
   try {
     const { name, brand, category, price, stock } = req.body;
@@ -42,7 +42,7 @@ const addProductByAdmin = async (req, res) => {
   }
 };
 
-// To get all products 
+// To get all products
 const getAllProducts = async (req, res) => {
   try {
     const products = await productModel.find();
@@ -56,4 +56,57 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-module.exports = { addProductByAdmin, getAllProducts };
+const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, brand, category, price, stock } = req.body;
+    // Check if all fields exist properly
+    if (
+      !name ||
+      !brand ||
+      !category ||
+      typeof price !== "number" ||
+      typeof stock !== "number"
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Please provided all fields properly." });
+    }
+    // Check if price and stock are valid number
+    if (price < 0 || stock < 0) {
+      return res
+        .status(400)
+        .json({ message: "Price and stock must be positive numbers." });
+    }
+    // Check if product exist
+    const product = await productModel.findById( id );
+    if (!product) {
+      return res.status(404).json({ message: "Product is not found." });
+    }
+    // update the product
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      id,
+      {
+        name,
+        brand,
+        category,
+        price,
+        stock,
+      },
+      { new: true } // to return updated product
+    );
+
+    if (!updatedProduct) {
+     return res.status(500).json({ message: "Failed to update product." });
+    }
+    // send the updated product as response 
+    res
+      .status(200)
+      .json({ message: "The product has updated.", data: updatedProduct });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server side error." });
+  }
+};
+
+module.exports = { addProductByAdmin, getAllProducts, updateProduct };

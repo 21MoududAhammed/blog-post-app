@@ -10,7 +10,7 @@ const verifyToken = async (req, res, next) => {
       return res.status(401).json({ message: `Authorization header missing.` });
     }
     // Extract the authorization token from the authorization headers
-    const token = authorization?.split(" ")[1];
+    const token = authorization.split(" ")[1];
     if (!token) {
       return res.status(401).json({ message: `Token is missing.` });
     }
@@ -49,7 +49,7 @@ const verifyTokenAndAdmin = async (req, res, next) => {
         .json({ message: "Authorization headers missing." });
     }
     // Extract token from authorization headers
-    const token = authorization?.split(" ")[1];
+    const token = authorization.split(" ")[1];
     if (!token) {
       return res.status(401).json({ message: "Token is missing." });
     }
