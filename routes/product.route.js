@@ -1,10 +1,11 @@
 const express = require("express");
 const productModel = require("../models/product.model");
+const { verifyToken, verifyTokenAndAdmin } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
-// to insert / add a new product 
-router.post("/", async (req, res) => {
+// to insert / add a new product
+router.post("/",verifyTokenAndAdmin, async (req, res) => {
   try {
     const { name, brand, category, price, stock } = req.body;
     if (
@@ -45,4 +46,16 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/",verifyToken, async (req, res) => {
+  try {
+    const products = await productModel.find();
+    if (!products) {
+      return res.status(404).json({ message: `Product not found.` });
+    }
+    res.status(200).json({ message: "Success", data: products });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: `Server side error: ${err?.message}` });
+  }
+});
 module.exports = router;
