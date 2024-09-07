@@ -60,7 +60,7 @@ const getAllProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
-    // Retrieve product by id 
+    // Retrieve product by id
     const product = await productModel.findById(id);
     if (!product) {
       return res.status(404).json({ message: "Product is not found." });
@@ -126,4 +126,26 @@ const updateProduct = async (req, res) => {
   }
 };
 
-module.exports = { addProductByAdmin, getAllProducts, updateProduct, getProductById };
+// to delete a product by admin
+const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Check if exists the product
+    const deletedProduct = await productModel.findByIdAndDelete(id);
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product is not found." });
+    }
+    res.status(204).send(); // no content indication successful deletion
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server side error." });
+  }
+};
+
+module.exports = {
+  addProductByAdmin,
+  getAllProducts,
+  updateProduct,
+  getProductById,
+  deleteProduct
+};
