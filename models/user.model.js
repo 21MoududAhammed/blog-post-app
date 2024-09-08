@@ -19,7 +19,13 @@ const userSchema = mongoose.Schema({
   isAdmin:{
     type: Boolean,
     default: false
-  }
+  },
+  products:[
+    {
+      type: mongoose.Types.ObjectId,
+      ref: 'Product'
+    }
+  ]
 });
 
 module.exports = mongoose.model('User', userSchema);

@@ -40,7 +40,7 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     // does user exist
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email }).populate('products');
     if (!user) {
       return res.status(404).json({ message: `Invalid Credentials!` });
     }
@@ -67,4 +67,17 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await userModel.find().populate("products");
+    if (!users) {
+      return res.status(404).json({ message: "Users not found." });
+    }
+    res.status(200).json({ message: "Success", data: users });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server side error." });
+  }
+};
+
+module.exports = { register, login , getAllUsers};

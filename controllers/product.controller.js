@@ -1,9 +1,12 @@
 const jwt = require("jsonwebtoken");
+const { ObjectId } = require("mongoose").Types;
 const productModel = require("../models/product.model");
+const userModel = require("../models/user.model");
 // To add a product by admin
 const addProductByAdmin = async (req, res) => {
   try {
     const { name, brand, category, price, stock } = req.body;
+    const { id: userId } = req.user;
     if (
       !name ||
       !brand ||
@@ -31,11 +34,24 @@ const addProductByAdmin = async (req, res) => {
       category,
       price,
       stock,
+      user: userId,
     });
+
     if (!product) {
       return res.status(400).json({ message: `Failed to insert the product.` });
     }
-    res.status(201).json({ message: "Successfully inserted.", data: product });
+
+    const result = await userModel.updateOne(
+      { _id: userId },
+      {
+        $push: {
+          products: product?._id,
+        },
+      }
+    );
+    res
+      .status(201)
+      .json({ message: "Successfully inserted.", data: product, result });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: `Server side error: ${err?.message}` });
@@ -45,7 +61,9 @@ const addProductByAdmin = async (req, res) => {
 // To get all products
 const getAllProducts = async (req, res) => {
   try {
-    const products = await productModel.find();
+    const products = await productModel
+      .find()
+      .populate("user", "name email -_id");
     if (!products) {
       return res.status(404).json({ message: `Product not found.` });
     }
@@ -147,5 +165,5 @@ module.exports = {
   getAllProducts,
   updateProduct,
   getProductById,
-  deleteProduct
+  deleteProduct,
 };

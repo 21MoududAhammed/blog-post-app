@@ -70,7 +70,7 @@ const verifyTokenAndAdmin = async (req, res, next) => {
       return res.status(403).json({ message: `Access denied. Admins only.` });
     }
     // Attach the user to the request
-    req.user = user;
+    req.user = {email: decoded.email, id: decoded._id};
     next();
   } catch (err) {
     console.log(err);
